@@ -2,7 +2,7 @@
 
 Combined set of workers to optimize performance. Currently a combined set of:
 
-* WebP rewrite - Returns WebP versions of images if browser supports webp, and if a suitable webp image exists. Adapted from [this worker](https://github.com/vidaxl-com/cloudflare_webworkers/blob/master/examples/webp.js) - 
+* WebP rewrite - Returns WebP versions of images if browser supports webp, and if a suitable webp image exists. Adapted from [this worker](https://github.com/vidaxl-com/cloudflare_webworkers/blob/master/examples/webp.js)
 * [Fast Google Fonts](https://github.com/cloudflare/worker-examples/tree/master/examples/fast-google-fonts) - Inlines the browser-specific font CSS and re-hosts the font files through the page origin (saving round trips). Blog post with more details [here](https://blog.cloudflare.com/fast-google-fonts-with-cloudflare-workers/).
 * [Third-party Scripts](https://github.com/cloudflare/worker-examples/tree/master/examples/third-party-scripts) - Cache-extends and rehosts static third-party scripts from well-known providers (things like Ajax library CDN's, static analytics code, A/B testing code, etc).
 * [Edge-Cache HTML](https://github.com/cloudflare/worker-examples/tree/master/examples/edge-cache-html) - Caches dynamic HTML on the edge when combined with a CMS that supports it (plugin for wordpress is available). Blog post with more details [here](https://blog.cloudflare.com/improving-html-time-to-first-byte/)
