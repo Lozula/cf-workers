@@ -65,7 +65,7 @@ async function makeWebp(request) {
         && request.headers.get('Accept').match(/image\/webp/)
         && request.url.match(regex)) {
         /**
-         * Replace jpg / png with webp
+         * Replace jpg with webp
          */
         let url = new URL(request.url.replace(regex, '.webp'))
 
