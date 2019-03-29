@@ -1,8 +1,10 @@
 // Enabled optimization features
-const ENABLE_PROXY_THIRD_PARTY = true;  // Proxy 3rd-party Javascript and CSS
-const ENABLE_GOOGLE_FONTS = true;       // Fast Google Fonts
+const ENABLE_PROXY_THIRD_PARTY = false;  // Proxy 3rd-party Javascript and CSS
+const ENABLE_GOOGLE_FONTS = false;       // Fast Google Fonts
 const ENABLE_EDGE_CACHE = true;         // Edge-cache Wordpress HTML in conjunction with the "Cloudflare Page Cache" plugin
-const ENABLE_REWRITE_DOMAINS = true;    // Rewrite well-known CMS static domains (JetPack, shopify, bigcommerce, etc)
+const ENABLE_REWRITE_DOMAINS = false;    // Rewrite well-known CMS static domains (JetPack, shopify, bigcommerce, etc)
+const ENABLE_WEBP = true; //enable WEBP rewriting of jpg files
+
 
 // API settings if KV isn't being used for EDGE_CACHE (otherwise the EDGE_CACHE variable needs to be bound to a KV namespace for this worker)
 const CLOUDFLARE_API = {
@@ -51,8 +53,70 @@ addEventListener("fetch", event => {
     if (!isImage) {
       event.respondWith(processRequest(event.request, event));
     }
+    
+    /*add webp rewriting for webp*/
+  if (isImage && ENABLE_WEBP) {
+    event.respondWith(makeWebp(event.request))
+  }
+    
   }
 });
+
+async function makeWebp(request) {
+      let regex = /\.jpg$/;
+
+      if(request.headers.get('Accept')
+        && request.headers.get('Accept').match(/image\/webp/)
+        && request.url.match(regex)) {
+        /**
+         * Replace jpg / png with webp
+         */
+        let url = new URL(request.url.replace(regex, '.webp'))
+
+        /**
+         * Create a new request with the webp url
+         */
+        const modifiedRequest = new Request(url, {
+            method: request.method,
+            headers: request.headers
+        })
+
+        /**
+         * Fetch the webp response
+         */
+
+        const webpResponse = await fetch(modifiedRequest)
+
+        //check webpversion of image exists
+        if (webpResponse && webpResponse.status === 200) {
+         // Add webworker header to the webp response so we can
+         //check live if the webworking is doing what it should do
+         
+          const webpHeaders = new Headers(webpResponse.headers)
+          webpHeaders.append('X-WebWorker', 'active')
+
+        
+         //Return a new response object
+         
+          return new Response(webpResponse.body, {
+              status: webpResponse.status,
+              statusText: webpResponse.statusText,
+              headers: webpHeaders
+          })
+
+        } else {
+          //return original image as webp version didn't exist
+          const response = await fetch(request);
+          return response;
+        }
+
+    } else {
+        const response = await fetch(request);
+        return response
+    }
+}
+
+
 
 /******************************************************************************
  *  Application logic
