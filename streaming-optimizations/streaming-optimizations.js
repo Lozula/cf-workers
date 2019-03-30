@@ -5,7 +5,6 @@ const ENABLE_EDGE_CACHE = true;         // Edge-cache Wordpress HTML in conjunct
 const ENABLE_REWRITE_DOMAINS = false;    // Rewrite well-known CMS static domains (JetPack, shopify, bigcommerce, etc)
 const ENABLE_WEBP = true; //enable WEBP rewriting of jpg files
 
-
 // API settings if KV isn't being used for EDGE_CACHE (otherwise the EDGE_CACHE variable needs to be bound to a KV namespace for this worker)
 const CLOUDFLARE_API = {
   email: "", // From https://dash.cloudflare.com/profile
@@ -49,27 +48,27 @@ addEventListener("fetch", event => {
     let isImage = false;
     if (accept && accept.indexOf('image/*') !== -1) {
       isImage = true;
+ 
+      /*add webp rewriting for images and browsers that support webp*/
+      if (accept.indexOf('image/webp') !== -1 && ENABLE_WEBP) {
+        event.respondWith(makeWebp(event.request))
+      }    
+
     }
+
     if (!isImage) {
       event.respondWith(processRequest(event.request, event));
     }
-    
-    /*add webp rewriting for webp*/
-  if (isImage && ENABLE_WEBP) {
-    event.respondWith(makeWebp(event.request))
-  }
-    
+        
   }
 });
 
 async function makeWebp(request) {
       let regex = /\.jpg$/;
 
-      if(request.headers.get('Accept')
-        && request.headers.get('Accept').match(/image\/webp/)
-        && request.url.match(regex)) {
+      if(request.url.match(regex)) {
         /**
-         * Replace jpg / png with webp
+         * Replace jpg with webp
          */
         let url = new URL(request.url.replace(regex, '.webp'))
 
